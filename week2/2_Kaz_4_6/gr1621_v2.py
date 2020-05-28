@@ -24,12 +24,14 @@ import pandas as pd
 from sklearn.metrics import mean_absolute_error
 
 
+
+#----------------------------------------------------------------------------------------------------------#
 def rmsle(y, y_pred):
     assert len(y) == len(y_pred)
     terms_to_sum = [(math.log(y_pred[i] + 1) - math.log(y[i] + 1)) ** 2.0 for i, pred in enumerate(y_pred)]
     return (sum(terms_to_sum) * (1.0 / len(y))) ** 0.5
 
-
+#----------------------------------------------------------------------------------------------------------#
 def fix_target(frame, key, target, new_target_name="target"):
     import numpy as np
 
@@ -52,7 +54,7 @@ def fix_target(frame, key, target, new_target_name="target"):
 
     frame[new_target_name] = np.array(target)
 
-
+#----------------------------------------------------------------------------------------------------------#
 def rate(frame, key, target, new_target_name="rate"):
     import numpy as np
 
@@ -76,7 +78,7 @@ def rate(frame, key, target, new_target_name="rate"):
 
     frame[new_target_name] = np.array(rate)
 
-
+#----------------------------------------------------------------------------------------------------------#
 def get_data_by_key(dataframe, key, key_value, fields=None):
     mini_frame = dataframe[dataframe[key] == key_value]
     if not fields is None:
@@ -84,12 +86,20 @@ def get_data_by_key(dataframe, key, key_value, fields=None):
 
     return mini_frame
 
-
+#==========================================================================================================#
 directory = "../input/covid19-global-forecasting-week-2/"
 model_directory = "../input/model-dir/model"
 
 train = pd.read_csv(directory + "train.csv", parse_dates=["Date"], engine="python")
 test = pd.read_csv(directory + "test.csv", parse_dates=["Date"], engine="python")
+
+# Use only US ###############################################################################################
+Country_Region = ['US']
+Province_State = ['Guam']
+train = train.loc[train['Country_Region'].isin(Country_Region)]
+train = train.loc[train['Province_State'].isin(Province_State)]
+test = test.loc[test['Country_Region'].isin(Country_Region)]
+test = test.loc[test['Province_State'].isin(Province_State)]
 
 train["key"] = train[["Province_State", "Country_Region"]].apply(lambda row: str(row[0]) + "_" + str(row[1]), axis=1)
 test["key"] = test[["Province_State", "Country_Region"]].apply(lambda row: str(row[0]) + "_" + str(row[1]), axis=1)
@@ -344,9 +354,7 @@ for kee in new_unique_keys:
 
 # %% [code]
 import lightgbm as lgb
-from sklearn.linear_model import Ridge
 from sklearn.externals import joblib
-
 
 def predict(xtest, input_name=None):
     # print (type(yt))
@@ -549,6 +557,8 @@ preds_fatalities_standard_cv = np.zeros((features_cv.shape[0], horizon))
 
 overal_rmsle_metric_confirmed = 0.0
 
+#============================================================================================#
+# Prediction for confirmed
 for j in range(preds_confirmed_cv.shape[1]):
     this_features_cv = features_cv
 
@@ -590,7 +600,12 @@ for ii in range(preds_confirmed_cv.shape[0]):
     for j in range(preds_confirmed_cv.shape[1]):
         current_prediction *= max(1, this_preds[j])
         preds_confirmed_standard_cv[ii][j] = current_prediction
+#============================================================================================#
 
+
+
+#============================================================================================#
+# Prediction for fatal
 for j in range(preds_confirmed_cv.shape[1]):
     this_features_cv = features_cv
 
@@ -634,6 +649,8 @@ for ii in range(preds_fatalities_cv.shape[0]):
             current_prediction = 1.
         current_prediction *= max(1, this_preds[j])
         preds_fatalities_standard_cv[ii][j] = current_prediction
+
+#============================================================================================#
 
 # %% [code]
 key_to_confirmed_rate = {}
