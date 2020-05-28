@@ -41,6 +41,8 @@ class Covid19ML():
         self.val_days = None
         self.mad_factor = None
 
+
+
     def rmse(self, yt, yp):
         # RMSE: Root Mean Square Error
         # return np.sqrt(np.mean((yt - yp) ** 2))
