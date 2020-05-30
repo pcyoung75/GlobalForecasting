@@ -35,13 +35,12 @@ warnings.filterwarnings("ignore")
 class Covid19ML():
     def __init__(self):
         self.days_since_cases = None
-        self.seed = 41
+        self.seed = 42
         self.n_dates_train = None
         self.n_dates_test = None
         self.val_days = None
         self.mad_factor = None
-
-
+        self.lags = 41
 
     def rmse(self, yt, yp):
         # RMSE: Root Mean Square Error

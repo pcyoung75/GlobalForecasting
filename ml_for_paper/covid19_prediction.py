@@ -70,7 +70,7 @@ class Covid19Predictor(Covid19ML):
 
     def perform_feature_engineering(self):
         # creating lag features
-        for lag in range(1, 41):
+        for lag in range(1, self.lags):
             self.df_panel[f"lag_{lag}_cc"] = self.df_panel.groupby("geography")["ConfirmedCases"].shift(lag)
             self.df_panel[f"lag_{lag}_ft"] = self.df_panel.groupby("geography")["Fatalities"].shift(lag)
             self.df_panel[f"lag_{lag}_rc"] = self.df_panel.groupby("geography")["Recoveries"].shift(lag)
@@ -194,9 +194,9 @@ class Covid19Predictor(Covid19ML):
                     df_test_full.Date == date, ["ForecastId", "ConfirmedCases", "Fatalities"]].rename(
                     columns={"ConfirmedCases": "ConfirmedCases_test", "Fatalities": "Fatalities_test"})
 
-                # multiplying predictions by 41 to not look cool on public LB
-                df_pred_test.ConfirmedCases_test = df_pred_test.ConfirmedCases_test * 41
-                df_pred_test.Fatalities_test = df_pred_test.Fatalities_test * 41
+                # multiplying predictions by 41 (=self.lags) to not look cool on public LB
+                df_pred_test.ConfirmedCases_test = df_pred_test.ConfirmedCases_test * self.lags
+                df_pred_test.Fatalities_test = df_pred_test.Fatalities_test * self.lags
             else:
                 df_test = df_test_full[df_test_full.Date == date]
 
