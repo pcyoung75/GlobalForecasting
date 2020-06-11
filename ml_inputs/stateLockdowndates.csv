@@ -1,0 +1,55 @@
+State,State of emergency declared,Stay at home ordered,Stay at home order lifted,Regional reopening,Face Mask Required,Gatherings banned,out of state travel restrictions,Type,Reference
+Alabama,3/13/2020,4/4/2020,4/30/2020,,,10 or more,No,Full,r_1
+Alaska,3/11/2020,3/28/2020,4/24/2020,,,10 or more,Mandatory quarantine,Full,r_6
+Arizona,3/11/2020,3/31/2020,5/15/2020,,,50 or more,Limited quarantine,Full,r_5
+Arkansas,3/11/2020,No,,,,10 or more,No,None,r_5
+California,3/4/2020,3/19/2020,5/12/2020,Yes,,All,No,Full,
+Colorado,3/10/2020,3/26/2020,4/26/2020,,,10 or more,No,Full,
+Connecticut,3/10/2020,3/23/2020,5/20/2020,,,All,Recommended quarantine,Full,r_5
+Delaware,3/12/2020,3/24/2020,5/31/2020,,,All,Mandatory quarantine,Full,r_6
+District of Columbia,3/11/2020,4/1/2020,5/29/2020,,4/1/2020,10 or more,No,None,"r_2, r_6"
+Florida,3/1/2020,4/2/2020,5/4/2020,,,10 or more,Limited quarantine / Screened,Full,r_3
+Georgia,3/14/2020,4/3/2020,4/30/2020,,,10 or more,No,None,
+Guam,3/14/2020,No,,,,All,No,Full,
+Hawaii,3/4/2020,3/25/2020,5/31/2020,,,"11 or more, and public gathering in public places",Mandatory quarantine,Full,r_6
+Idaho,3/13/2020,3/25/2020,4/30/2020,,,All,Mandatory quarantine,Full,
+Illinois,3/9/2020,3/21/2020,5/29/2020,"Yes (Chicago, June 3)",,All,No,Full,
+Indiana,3/6/2020,3/25/2020,5/4/2020,,,"All outside, and 11 or more inside a household",No,Full,r_6
+Iowa,3/9/2020,No,,,,10 or more,No,None,
+Kansas,3/9/2020,3/30/2020,5/4/2020,,,10 or more,Limited quarantine,Full,
+Kentucky,3/6/2020,3/26/2020,5/20/2020,,,10 or more,Mandatory quarantine,Full,
+Louisiana,3/11/2020,3/23/2020,5/15/2020,,,11 or more,No,Full,"r_4, r_5"
+Maine,3/15/2020,4/2/2020,5/1/2020,,,10 or more,Mandatory quarantine,Full,r_6
+Maryland,3/5/2020,3/30/2020,5/15/2020,,,10 or more,Mandatory quarantine,Full,
+Massachusetts,3/10/2020,3/24/2020,5/18/2020,,,11 or more,Mandatory quarantine,Full,r_6
+Michigan,3/11/2020,3/24/2020,6/1/2020,"Yes (statewide, June 12)",,All,No,Full,
+Minnesota,3/13/2020,3/27/2020,5/17/2020,,,All,No,Full,
+Mississippi,3/4/2020,4/3/2020,4/27/2020,,,All,No,Full,
+Missouri,3/13/2020,4/6/2020,5/3/2020,,,10 or more,Regional,Full,
+Montana,3/12/2020,3/28/2020,4/26/2020,,,10 or more,Mandatory quarantine,Full,
+Nebraska,3/13/2020,No,,,,10 or more,Limited quarantine,None,
+Nevada,3/12/2020,4/1/2020,5/9/2020,,,10 or more,Mandatory quarantine,Full,
+New Hampshire,3/13/2020,3/27/2020,6/15/2020,,,50 or more,Mandatory quarantine,Full,
+New Jersey,3/9/2020,3/21/2020,6/5/2020,,,All,No,Full,
+New Mexico,3/11/2020,3/24/2020,5/31/2020,,,6 or more,Mandatory quarantine,Full,
+New York,3/7/2020,3/22/2020,5/28/2020,Yes (June 8),,All,No,Full,
+North Carolina,3/10/2020,3/30/2020,5/22/2020,,,10 or more,No,Full,
+North Dakota,3/13/2020,No,,,,50 or more,Mandatory quarantine,None,
+Ohio,3/9/2020,3/23/2020,5/29/2020,,,11 or more,Mandatory quarantine,Full,
+Oklahoma,3/15/2020,No,,,,11 or more,Limited quarantine,None,r_6
+Oregon,3/8/2020,3/23/2020,5/15/2020,Yes,,All,No,Full,
+Pennsylvania,3/6/2020,4/1/2020,6/4/2020,Yes,,10 or more (recommended),Limited quarantine,Full,
+Puerto Rico,3/12/2020,3/15/2020,6/15/2020,,,All,Screened,Full,
+Rhode Island,3/9/2020,3/28/2020,5/8/2020,,,25 or more,Mandatory quarantine,Full,
+South Carolina,3/13/2020,4/7/2020,5/4/2020,,,50 or more,Limited quarantine,None,
+South Dakota,3/13/2020,No,,,,50 or more,No,None,
+Tennessee,3/12/2020,4/2/2020,4/30/2020,Yes,,10 or more,No,Full,
+Texas,3/13/2020,4/2/2020,4/30/2020,,,10 or more,Limited quarantine,Full,
+Utah,3/6/2020,No,,,,10 or more,No,None,
+Virgin Islands,3/13/2020,3/25/2020,,,,All,No,Full,
+Vermont,3/16/2020,3/25/2020,5/15/2020,,,10 or more,Mandatory quarantine,Full,
+Virginia,3/12/2020,3/30/2020,6/10/2020,,,10 or more,No,Full,
+Washington,2/29/2020,3/23/2020,5/31/2020,Yes,,All,No,Full,
+West Virginia,3/4/2020,3/23/2020,5/4/2020,,,All,No,Full,
+Wisconsin,3/12/2020,3/25/2020,5/13/2020,,,All,Mandatory quarantine,Full,
+Wyoming,3/12/2020,No,,,,10 or more,Mandatory quarantine,None,

@@ -32,29 +32,40 @@ warnings.filterwarnings("ignore")
 pd.options.display.max_rows = 500
 pd.options.display.max_columns = 500
 
-PATH_TRAIN = "../Data/train_final.csv"
+PATH_TRAIN = "../ml_inputs/TrainMaster.csv"
 df_data = pd.read_csv(PATH_TRAIN)
 
 #===============================================================================================#
-# 1. Confirmed case pattern analysis
+# Show CC for all states
 #===============================================================================================#
 g = df_data.groupby("Province_State")["ConfirmedCases"]
 row_data = {}
+ticks = []
+x_ticks_labels = []
+confirmed_cases = []
+pre_len = 0
 for s, v in g:
     row_data[s] = v.tolist()
+    length = len(v.tolist())
+    confirmed_cases += v.tolist()
+    ticks.append(length + pre_len)
+    x_ticks_labels.append(f'{s}')
+    pre_len += length
+    print(s)
 
-df_over_state = pd.DataFrame(row_data)
-df_over_state.to_csv('df_over_state.csv')
+# df_over_state = pd.DataFrame(row_data)
+# df_over_state.to_csv('df_over_state.csv')
 
-## Look at all cases
-# df_over_state.plot.line(figsize=(10, 5))
-# plt.legend(loc='center left')
-# plt.show()
+# plot baseline and predictions
+fig = plt.figure()
+# fig.suptitle('test title')
+ax = fig.gca()
+ax.set_xticks(ticks)
+ax.set_xticklabels(x_ticks_labels, rotation='vertical', fontsize=13)
+# ax.set_xticks(np.arange(0, len(confirmed_cases), 1))
 
-## Look at one by one
-# for c in df_over_state.columns.values:
-#     df_over_state[c].plot.line(figsize=(10, 5))
-#     plt.legend(loc='center left')
-#     plt.show()
+# plt.grid(True)
+plt.plot(confirmed_cases)
+# plt.xlabel(title)
+plt.show()
 
-print(df_over_state)

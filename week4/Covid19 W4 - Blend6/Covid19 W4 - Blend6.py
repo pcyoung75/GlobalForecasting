@@ -797,7 +797,8 @@ LGB_PARAMS = {"objective": "regression",
               "reg_alpha": 0.13,
               "reg_lambda": 0.13,
               "metric": "rmse",
-              "seed": SEED
+              "seed": SEED,
+              'verbose': -1
              }
 
 ## reading data
@@ -986,10 +987,13 @@ def build_predict_lgbm(df_train, df_test, gap):
     
     target_cc = df_train.target_cc
     target_ft = df_train.target_ft
+
+    print(df_train, df_test)
     
     test_lag_cc = df_test[f"lag_{gap}_cc"].values
     test_lag_ft = df_test[f"lag_{gap}_ft"].values
-    
+
+    print(df_test["target_cc"])
     df_train.drop(["target_cc", "target_ft"], axis = 1, inplace = True)
     df_test.drop(["target_cc", "target_ft"], axis = 1, inplace = True)
     
@@ -1002,7 +1006,9 @@ def build_predict_lgbm(df_train, df_test, gap):
     model_ft = lgb.train(LGB_PARAMS, train_set = dtrain_ft, num_boost_round = 200)
     
     # inverse transform from log of change from last known value
-    y_pred_cc = np.expm1(model_cc.predict(df_test, num_boost_round = 200)) + test_lag_cc
+    predict_results = model_cc.predict(df_test, num_boost_round=200)
+    print(predict_results)
+    y_pred_cc = np.expm1(predict_results) + test_lag_cc
     y_pred_ft = np.expm1(model_ft.predict(df_test, num_boost_round = 200)) + test_lag_ft
     
     return y_pred_cc, y_pred_ft, model_cc, model_ft
