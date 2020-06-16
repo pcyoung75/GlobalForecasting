@@ -7,22 +7,33 @@ from keras.layers import LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
+import lightgbm as lgb
 import warnings
 import time
 
-warnings.filterwarnings("ignore")
 
-
-class LSTM_Model():
+class TimeSeriesML():
     def __init__(self, configs):
         self.cf = configs
-        filename = self.cf['filename']
-        split = self.cf['train_test_split']
-        cols = self.cf['columns']
+        self.seed = 10
         self.look_back = self.cf['look_back']
 
-        dataframe = pd.read_csv(filename)
-        self.dataset = dataframe.get(cols)
+    def load_data(self):
+        self.excel_data = pd.read_csv(self.cf['filename'])
+        for d in self.cf['date_data']:
+            self.excel_data[d] = pd.to_datetime(self.excel_data[d])
+
+        if self.cf['sort'] is not None:
+            self.excel_data.sort_values(self.cf['sort'], inplace=True)
+        return self.excel_data
+
+    def split_data(self):
+        split = self.cf['train_test_split']
+
+        cols = self.cf['columns']
+
+        self.dataset = self.excel_data.get(cols)
+        # self.dataset.dropna(subset=cols)
 
         # normalize the dataset
         self.scaler = MinMaxScaler(feature_range=(0, 1))
@@ -36,7 +47,38 @@ class LSTM_Model():
 
             self.df_train = self.dataset[0:self.train_size]
             self.df_test = self.dataset[self.train_size:len(self.dataset)]
+        else:
+            # Data which are in certain values in a column are taken as train and test data
+            train_columns = self.cf['train_columns']
+            test_columns = self.cf['test_columns']
 
+            # Find train and test column keys
+            train_columns_key = list(train_columns.keys())[0]
+            test_columns_key = list(test_columns.keys())[0]
+
+            # Take data which are in the values in the column
+            self.dataset = self.excel_data.where(self.excel_data[train_columns_key].isin(train_columns[train_columns_key] + test_columns[test_columns_key]))
+
+            # Select data in the selected columns (i.e., X and Y variables)
+            self.dataset = self.dataset.get(cols)
+            self.dataset = self.dataset.dropna(subset=cols)
+
+            # Scale the selected data
+            scaled_df = self.scaler.fit_transform(self.dataset)
+
+            # Use the scaled data to make the selected data, so that the same index is reserved
+            self.dataset = pd.DataFrame(scaled_df, index=self.dataset.index, columns=self.dataset.columns)
+
+            # Get the train and test data from the original data
+            df_train = self.excel_data.where(self.excel_data[train_columns_key].isin(train_columns[train_columns_key])).dropna(subset=[train_columns_key])
+            df_test = self.excel_data.where(self.excel_data[test_columns_key].isin(test_columns[test_columns_key])).dropna(subset=[test_columns_key])
+
+            # Get the train and test data from the selected data
+            self.df_train = self.dataset.ix[df_train.index].dropna(subset=cols)
+            self.df_test = self.dataset.ix[df_test.index].dropna(subset=cols)
+
+            self.train_size = len(self.df_train)
+            self.test_size = len(self.df_test)
 
         self.target_column_index = self.dataset.columns.get_loc(self.cf['target'])
 
@@ -67,16 +109,11 @@ class LSTM_Model():
 
         return dataX, dataY
 
-    def train(self, x_train=None, y_train=None):
-        if x_train is not None:
-            self.x_train, self.y_train = x_train, y_train
-        else:
-            x_train, y_train = self.x_train, self.y_train
-        
+    def train_lstm(self, x_train=None, y_train=None):
         # create and fit the LSTM network
         ts = time.time()
         self.model = Sequential()
-        self.model.add(LSTM(self.cf['neurons'], input_shape=(x_train.shape[1], x_train.shape[2])))
+        self.model.add(LSTM(self.cf['neurons'], input_shape=(x_train.shape[1], x_train.shape[2]), stateful=False))
         self.model.add(Dense(1))
         self.model.compile(loss=self.cf['loss'], optimizer=self.cf['optimizer'])
         self.model.fit(x_train, y_train, nb_epoch=self.cf['epochs'],
@@ -86,6 +123,34 @@ class LSTM_Model():
 
         if 'learnedfile' in self.cf and self.cf['learnedfile'] is not None:
             self.model.save(self.cf['learnedfile'])
+
+    def train_lgbm(self, x_train=None, y_train=None): #df_train_src, df_test_src):
+        LGB_PARAMS = {"objective": "regression",
+                      "num_leaves": 5,
+                      "learning_rate": 0.013,
+                      "bagging_fraction": 0.91,
+                      "feature_fraction": 0.81,
+                      "reg_alpha": 0.13,
+                      "reg_lambda": 0.13,
+                      "metric": "rmse",
+                      "seed": self.seed,
+                      'verbose': -1
+                      }
+
+        dtrain_cc = lgb.Dataset(x_train, label=y_train)
+        # model_cc = lgb.train(LGB_PARAMS, train_set=dtrain_cc, num_boost_round=200)
+        self.model = lgb.train(LGB_PARAMS, train_set=dtrain_cc)
+        return self.model
+
+    def train(self, x_train=None, y_train=None):
+        if x_train is not None:
+            self.x_train, self.y_train = x_train, y_train
+        else:
+            x_train, y_train = self.x_train, self.y_train
+
+        # create and fit the LSTM network
+        # self.train_lgbm(x_train, y_train)
+        self.train_lstm(x_train, y_train)
 
     def predict(self, x_test=None, y_test=None):
         if x_test is not None:
@@ -124,7 +189,6 @@ class LSTM_Model():
         print(title)
 
         # shift train predictions for plotting
-
         actuals = self.inv_transform(self.dataset)
         y_predict_plot = np.empty_like(actuals)
         y_predict_plot[:] = np.nan
@@ -134,7 +198,7 @@ class LSTM_Model():
         train_line[:] = np.nan
         train_line[self.look_back : len(self.x_train) + self.look_back] = 0
 
-        # plot baseline and predictions
+        # plot baseline and prediction
         fig = plt.figure()
         # fig.suptitle('test title')
         ax = fig.gca()
@@ -155,9 +219,14 @@ class LSTM_Model():
         # - colNames = all column names of the data on which scaler was fit
         #              (necessary because scaler will only accept a df of the same shape as the one it was fit on)
         """
+        if isinstance(data, pd.DataFrame):
+            temp = data.to_numpy()
+        else:
+            temp = data
+
         col_name = self.cf['target']
         col_names = self.cf['columns']
-        dummy = pd.DataFrame(np.zeros((len(data), len(col_names))), columns=col_names)
-        dummy[col_name] = data
+        dummy = pd.DataFrame(np.zeros((len(temp), len(col_names))), columns=col_names)
+        dummy[col_name] = temp
         dummy = pd.DataFrame(self.scaler.inverse_transform(dummy), columns=col_names)
         return dummy[col_name].values

@@ -32,19 +32,32 @@ warnings.filterwarnings("ignore")
 pd.options.display.max_rows = 500
 pd.options.display.max_columns = 500
 
-PATH_TRAIN = "../Data/train_final.csv"
+PATH_TRAIN = "../ml_inputs/TrainMaster.csv"
 df_data = pd.read_csv(PATH_TRAIN)
 
 #===============================================================================================#
 # 1. Confirmed case pattern analysis
 #===============================================================================================#
-g = df_data.groupby("Province_State")["ConfirmedCases"]
-row_data = {}
-for s, v in g:
-    row_data[s] = v.tolist()
+g = df_data.groupby("Province_State")
+for s, df in g:
+    df = df.reset_index()
 
-df_over_state = pd.DataFrame(row_data)
-df_over_state.to_csv('df_over_state.csv')
+    cc = df['ConfirmedCases']
+    cc.plot.line(figsize=(10, 5))
+    plt.legend(loc='center left')
+    plt.xlabel(s)
+
+    lock_down = df[df['Date'] == df['LockDownDate1']]
+    if len(lock_down) != 0:
+        plt.axvline(lock_down.index[0], color='r')
+        plt.text(lock_down.index[0], 10, lock_down['Date'].to_string(), fontsize=12)
+
+    # plt.show()
+    plt.savefig(f'../ml_outputs/{s}.png')
+    plt.clf()
+
+# df_over_state = pd.DataFrame(row_data)
+# df_over_state.to_csv('df_over_state.csv')
 
 ## Look at all cases
 # df_over_state.plot.line(figsize=(10, 5))
@@ -57,4 +70,4 @@ df_over_state.to_csv('df_over_state.csv')
 #     plt.legend(loc='center left')
 #     plt.show()
 
-print(df_over_state)
+# print(df_over_state)
