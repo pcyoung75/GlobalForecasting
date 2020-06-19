@@ -1,5 +1,5 @@
 import os
-from time_series_ml import TimeSeriesML
+from time_series_ml_v2 import TimeSeriesML
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -7,8 +7,13 @@ import math
 from sklearn.metrics import mean_squared_error
 import warnings
 import winsound
+from saveResults import SaveResults
+from datetime import datetime
+from statistics import stdev
+from statistics import mean
 
 warnings.filterwarnings('ignore')
+
 
 """
 "Alabama", "Alaska", "Arizona", "Arkansas",  "California", "Colorado", "Connecticut", "Delaware", "District of Columbia",
@@ -32,44 +37,59 @@ class Covid19Predictor():
         # self.cf['learnedfile'] = os.path.join('saved_models', 'covid19_three.hdf5')
         self.cf['date_data'] = ['Date']
         self.cf['sort'] = None
-        # self.cf['sort'] = ['Province_State', 'Date']
-        # self.cf['columns'] = ['ConfirmedCases', 'Fatalities']
-        # self.cf['columns'] = ['ConfirmedCases']
-        # self.cf['target'] = 'ConfirmedCases'
+        # self.cf['look_back'] = 1
+        self.cf['look_back'] = 20
+
+        # ===============================================
+        self.lags = 4
+        # self.days_since_cases = [1, 10, 50, 100, 500, 1000, 5000, 10000]
+        self.days_since_cases = [1, 10, 50]
+        self.val_days = 14
+        self.mode = 'ratio'
+
+        # Excel
+        self.excel = {}
+        self.excel['X Variables'] = []
+        self.excel['Y Target'] = []
+        self.excel['Train States'] = []
+        self.excel['Target State'] = []
+        self.excel['avg_score'] = []
+        self.excel['std_score'] = []
+        self.excel['Train Size'] = []
+        self.excel['Test Size'] = []
+        self.excel['Repetition'] = []
+
+    def save_excel_file(self):
+        experiment_time = datetime.now().strftime("%m_%d_%Y-%H_%M_%S")
+        excel_file = f'../ml_outputs/{experiment_time}.xlsx'
+        excel_experiment = SaveResults(excel_file)
+        for k, l in self.excel.items():
+            excel_experiment.insert(k, l)
+        excel_experiment.save()
+
+    def set_experiment_settings(self, train_states, test_state, x_variables):
         # self.cf['columns'] = ['lag_1_ratio_cc']
         # self.cf['columns'] = ['lag_1_ratio_cc', 'SeniorPopulation', 'FoodStamp', 'NoHealthIns', 'PovertyLevel', 'MeanTravelTime']
         # self.cf['columns'] = ['lag_1_ratio_cc', 'SeniorMalePopulation', 'PublicTransportationP', 'Household', 'Income']
-        self.cf['columns'] = ['lag_1_ratio_cc', 'Income']
+        # self.cf['columns'] = ['lag_1_ratio_cc', 'Income']
         # self.cf['columns'] = ['lag_1_ratio_cc', 'SeniorPopulation', 'FoodStamp', 'NoHealthIns', 'PovertyLevel',
         #                       'MeanTravelTime', 'SeniorMalePopulation', 'PublicTransportationP', 'Household', 'Income']
+        self.cf['columns'] = x_variables
 
         self.cf['target'] = 'lag_1_ratio_cc'
         # self.cf['columns'] = ['diff_1_cc']
         # self.cf['target'] = 'diff_1_cc'
 
         self.cf['train_test_split'] = None
-        # self.cf['train_columns'] = None
-        # self.cf['test_columns'] = None
-        # self.cf['train_test_split'] = 0.8
-        # self.cf['train_columns'] = {'Province_State': ["Alabama", "Alaska", "Arizona", "Arkansas",  "California", "Colorado", "Connecticut", "Delaware", "District of Columbia",
-        #                             "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine",
-        #                             "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Nebraska", "Nevada", "New Hampshire",
-        #                             "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania",
-        #                             "Puerto Rico", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
-        #                             "West Virginia", "Wisconsin"]}
-        # self.cf['train_columns'] = {'Province_State': ["Iowa", "Illinois", "Maryland", "Minnesota", "Kansas"]}
-        self.cf['train_columns'] = {'Province_State': ["Alaska", "Hawaii", "Idaho", "Louisiana", "Vermont"]}
-        # self.cf['train_columns'] = {'Province_State': ["Alaska", "Hawaii", "Idaho", "Louisiana"]}
-        # self.cf['train_columns'] = {'Province_State': ["Alaska", "Hawaii", "Idaho"]}
+        self.cf['train_columns'] = {'Province_State': train_states}
         # self.cf['train_columns'] = {'Province_State': ['Hawaii', 'Alaska']}
-        self.cf['test_columns'] = {'Province_State': ['Montana']}
-        # self.cf['look_back'] = 1
-        self.cf['look_back'] = 20
+        self.cf['test_columns'] = {'Province_State': test_state}
+        # self.cf['test_columns'] = {'Province_State': ['Montana']}
         # self.cf['epochs'] = 500 # better
         # self.cf['epochs'] = 100
-        self.cf['epochs'] = 20
+        # self.cf['epochs'] = 20
         # self.cf['epochs'] = 40
-        # self.cf['epochs'] = 2
+        self.cf['epochs'] = 2
         self.cf['batch_size'] = 1
         # self.cf['batch_size'] = 32
         self.cf['save_dir'] = 'saved_models'
@@ -88,13 +108,6 @@ class Covid19Predictor():
         self.cf['layers'] = []
         # self.cf['metrics'] = 'RMSE'
         self.cf['metrics'] = 'MAE'
-
-        #===============================================
-        self.lags = 4
-        # self.days_since_cases = [1, 10, 50, 100, 500, 1000, 5000, 10000]
-        self.days_since_cases = [1, 10, 50]
-        self.val_days = 14
-        self.mode = 'ratio'
 
     def prepare_data(self, model):
         df = model.excel_data
@@ -169,24 +182,78 @@ class Covid19Predictor():
         model.excel_data = df
 
     def run(self):
-        # ======================================================================= #
-        #       Basic ML
-        # ======================================================================= #
         model = TimeSeriesML(self.cf)
         model.load_data()
         self.prepare_data(model)
-        model.split_data()
-        model.train()
-        y_predict, y_test = model.predict()
 
-        # Remove the first day of CC, since we can't predict it
-        first_cc = np.where(y_test > 1.0)[0][0]
-        y_predict, y_test = y_predict[first_cc + 1:], y_test[first_cc + 1:]
+        # ======================================================================= #
+        #       perform ML several times
+        # ======================================================================= #
+        states = ["Alabama", "Alaska", "Arizona"]
+        # states = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware",
+        #           "District of Columbia", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky",
+        #           "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana",
+        #           "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma",
+        #           "Oregon", "Pennsylvania", "Puerto Rico", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah",
+        #           "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"]
 
-        print(y_test)
-        print(y_predict)
+        variables = ['lag_1_ratio_cc', 'SeniorPopulation', 'FoodStamp', 'NoHealthIns', 'PovertyLevel',
+                     'MeanTravelTime', 'SeniorMalePopulation', 'PublicTransportationP', 'Household', 'Income']
+
+        num_experiments = 2
+
+        # for ex in range(num_experiments + 1):
+        for st in states:
+            # Make the experiment settings
+            # Select training states and a target state
+            train_states = states.copy()
+            train_states.remove(st)
+            test_state = []
+            test_state.append(st)
+
+            # Select x variables
+            x_variables = ['lag_1_ratio_cc']
+
+            # Set experiment settings
+            self.set_experiment_settings(train_states, test_state, x_variables)
+
+            # Split data
+            model.split_data()
+
+            scores = []
+            for ex in range(num_experiments):
+                # Perform training
+                model.train()
+
+                # Perform prediction
+                y_predict, y_test = model.predict()
+
+                # Remove the first day of CC, since we can't predict it
+                first_cc = np.where(y_test > 1.0)[0][0]
+                y_predict, y_test = y_predict[first_cc + 1:], y_test[first_cc + 1:]
+
+                print(y_test)
+                print(y_predict)
+
+                # Get score of the prediction
+                scores.append(model.score(y_test, y_predict))
+
+            # Get the average score and STD
+            self.excel['avg_score'].append(mean(scores))
+            self.excel['std_score'].append(stdev(scores))
+            self.excel['X Variables'].append(', '.join(x_variables))
+            self.excel['Y Target'].append(self.cf['target'])
+            self.excel['Train States'].append(', '.join(train_states))
+            self.excel['Target State'].append(st)
+            self.excel['Repetition'].append(num_experiments)
+            self.excel['Train Size'].append(model.train_size)
+            self.excel['Test Size'].append(model.test_size)
+
+            # Show prediction results
+            # model.show(y_test, y_predict)
+
         winsound.Beep(1000, 440)
-        model.show(y_predict, y_test)
+        self.save_excel_file()
 
 
 if __name__ == '__main__':

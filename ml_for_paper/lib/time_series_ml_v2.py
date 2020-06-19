@@ -195,12 +195,18 @@ class TimeSeriesML():
         # pyplot.show()
         pass
 
-    def show(self, y_predict, y_test):
+    def score(self, y_test, y_predict):
         # calculate root mean squared error
         if self.cf['metrics'] == 'RMSE':
             test_score = math.sqrt(mean_squared_error(y_test, y_predict))
         elif self.cf['metrics'] == 'MAE':
             test_score = mean_absolute_error(y_test, y_predict)
+
+        return test_score
+
+    def show(self, y_test, y_predict):
+        # calculate root mean squared error
+        test_score = self.score(y_test, y_predict)
 
         title = f'Train Length[{len(self.x_train)}]'
         title += f'  Prediction Length[{len(y_predict)}]'
