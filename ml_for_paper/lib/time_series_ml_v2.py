@@ -13,14 +13,17 @@ import matplotlib.pyplot as plt
 import lightgbm as lgb
 import warnings
 import time
-
+import threading
+from multiprocessing import Process, Queue
 
 class TimeSeriesML():
+
     def __init__(self, configs):
         self.cf = configs
         self.seed = 10
         self.look_back = self.cf['look_back']
         self.first_index = {}
+        self.process_results = Queue()
 
     def load_data(self):
         self.excel_data = pd.read_csv(self.cf['filename'])
@@ -126,7 +129,57 @@ class TimeSeriesML():
 
         return dataX, dataY
 
-    def train_lstm(self, x_train=None, y_train=None):
+    def train_with_thread(self, size=10):
+        # 1. perform common machine learning
+        thread = []
+        for th in range(size):
+            print(f'[Thread {th}] for ML starts ============================')
+            t = Process(target=self.run_train_with_thread, args=([self.x_train, self.y_train, self.x_test, self.y_test, self.process_results]))
+            # t = threading.Thread(target=self.run_train_with_thread,
+            #                      args=([self.x_train, self.y_train, self.x_test, self.y_test]))
+            # t.setDaemon(True)
+            thread.append(t)
+
+        for t in thread:
+            t.start()
+
+        for t in thread:
+            t.join()
+
+    def run_train_with_thread(self, x_train, y_train, x_test, y_test, process_results):
+        # fit the LSTM network
+        ts = time.time()
+        model = Sequential()
+        model.add(LSTM(self.cf['neurons'], input_shape=(x_train.shape[1], x_train.shape[2]), stateful=False))
+        model.add(Dense(1))
+        model.compile(loss=self.cf['loss'], optimizer=self.cf['optimizer'])
+        model.fit(x_train, y_train, nb_epoch=self.cf['epochs'], batch_size=self.cf['batch_size'], verbose=2)
+
+        # test the LSTM network
+        y_predict = model.predict(x_test)
+        y_predict = self.inv_transform(y_predict)
+        y_test = self.inv_transform(y_test)
+
+        # Remove the first day of CC, since we can't predict it
+        first_cc = np.where(y_test > 1.0)[0][0]
+        y_predict, y_test = y_predict[first_cc + 1:], y_test[first_cc + 1:]
+
+        # calculate root mean squared error
+        if self.cf['metrics'] == 'RMSE':
+            test_score = math.sqrt(mean_squared_error(y_test, y_predict))
+        elif self.cf['metrics'] == 'MAE':
+            test_score = mean_absolute_error(y_test, y_predict)
+
+        process_results.put(test_score)
+        time.sleep(0.1)
+        print(f'LSTM was learned!: {(time.time() - ts)}')
+
+    def train(self, x_train=None, y_train=None):
+        if x_train is not None:
+            self.x_train, self.y_train = x_train, y_train
+        else:
+            x_train, y_train = self.x_train, self.y_train
+
         # create and fit the LSTM network
         ts = time.time()
         self.model = Sequential()
@@ -141,34 +194,6 @@ class TimeSeriesML():
         if 'learnedfile' in self.cf and self.cf['learnedfile'] is not None:
             self.model.save(self.cf['learnedfile'])
 
-    def train_lgbm(self, x_train=None, y_train=None): #df_train_src, df_test_src):
-        LGB_PARAMS = {"objective": "regression",
-                      "num_leaves": 5,
-                      "learning_rate": 0.013,
-                      "bagging_fraction": 0.91,
-                      "feature_fraction": 0.81,
-                      "reg_alpha": 0.13,
-                      "reg_lambda": 0.13,
-                      "metric": "rmse",
-                      "seed": self.seed,
-                      'verbose': -1
-                      }
-
-        dtrain_cc = lgb.Dataset(x_train, label=y_train)
-        # model_cc = lgb.train(LGB_PARAMS, train_set=dtrain_cc, num_boost_round=200)
-        self.model = lgb.train(LGB_PARAMS, train_set=dtrain_cc)
-        return self.model
-
-    def train(self, x_train=None, y_train=None):
-        if x_train is not None:
-            self.x_train, self.y_train = x_train, y_train
-        else:
-            x_train, y_train = self.x_train, self.y_train
-
-        # create and fit the LSTM network
-        # self.train_lgbm(x_train, y_train)
-        self.train_lstm(x_train, y_train)
-
     def predict(self, x_test=None, y_test=None):
         if x_test is not None:
             self.x_test, self.y_test = x_test, y_test
@@ -181,19 +206,6 @@ class TimeSeriesML():
         y_test = self.inv_transform(y_test)
 
         return y_predict, y_test
-
-    def show_data(self):
-        # values = dataset.values
-        # groups = [0, 1, 2, 3, 5, 6, 7]
-        # i = 1
-        # pyplot.figure()
-        # for group in groups:
-        #     pyplot.subplot(len(groups), 1, i)
-        #     pyplot.plot(values[:, group])
-        #     pyplot.title(dataset.columns[group], y=0.5, loc='right')
-        #     i += 1
-        # pyplot.show()
-        pass
 
     def score(self, y_test, y_predict):
         # calculate root mean squared error

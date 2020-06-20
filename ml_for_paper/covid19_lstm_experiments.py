@@ -11,9 +11,13 @@ from saveResults import SaveResults
 from datetime import datetime
 from statistics import stdev
 from statistics import mean
+import time
 
 warnings.filterwarnings('ignore')
 
+import multiprocessing
+
+print(multiprocessing.cpu_count())
 
 """
 "Alabama", "Alaska", "Arizona", "Arkansas",  "California", "Colorado", "Connecticut", "Delaware", "District of Columbia",
@@ -202,6 +206,8 @@ class Covid19Predictor():
 
         num_experiments = 2
 
+        ts = time.time()
+
         # for ex in range(num_experiments + 1):
         for st in states:
             # Make the experiment settings
@@ -220,27 +226,15 @@ class Covid19Predictor():
             # Split data
             model.split_data()
 
-            scores = []
-            for ex in range(num_experiments):
-                # Perform training
-                model.train()
-
-                # Perform prediction
-                y_predict, y_test = model.predict()
-
-                # Remove the first day of CC, since we can't predict it
-                first_cc = np.where(y_test > 1.0)[0][0]
-                y_predict, y_test = y_predict[first_cc + 1:], y_test[first_cc + 1:]
-
-                print(y_test)
-                print(y_predict)
-
-                # Get score of the prediction
-                scores.append(model.score(y_test, y_predict))
+            # Perform training in threading
+            model.train_with_thread(size=num_experiments)
 
             # Get the average score and STD
-            self.excel['avg_score'].append(mean(scores))
-            self.excel['std_score'].append(stdev(scores))
+            thread_results = []
+            while model.process_results.qsize() != 0:
+                thread_results.append(model.process_results.get())
+            self.excel['avg_score'].append(mean(thread_results))
+            self.excel['std_score'].append(stdev(thread_results))
             self.excel['X Variables'].append(', '.join(x_variables))
             self.excel['Y Target'].append(self.cf['target'])
             self.excel['Train States'].append(', '.join(train_states))
@@ -254,6 +248,8 @@ class Covid19Predictor():
 
         winsound.Beep(1000, 440)
         self.save_excel_file()
+
+        print("== Mahcine learning end: Time {} ==============================".format(time.time()-ts))
 
 
 if __name__ == '__main__':
