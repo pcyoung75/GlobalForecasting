@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import math
 from sklearn.metrics import mean_squared_error
+from keras.regularizers import L1L2
 import warnings
 import winsound
 from saveResults import SaveResults
@@ -62,6 +63,8 @@ class Covid19Predictor():
         self.excel['Train Size'] = []
         self.excel['Test Size'] = []
         self.excel['Repetition'] = []
+        self.excel['LL'] = []
+        self.excel['Regularizer'] = []
 
     def save_excel_file(self):
         experiment_time = datetime.now().strftime("%m_%d_%Y-%H_%M_%S")
@@ -204,6 +207,9 @@ class Covid19Predictor():
         variables = ['lag_1_ratio_cc', 'SeniorPopulation', 'FoodStamp', 'NoHealthIns', 'PovertyLevel',
                      'MeanTravelTime', 'SeniorMalePopulation', 'PublicTransportationP', 'Household', 'Income']
 
+        regularizers = ['bias', 'activity', 'kernel']
+        LL_list = [L1L2(l1=0.0, l2=0.0), L1L2(l1=0.01, l2=0.0), L1L2(l1=0.0, l2=0.01), L1L2(l1=0.01, l2=0.01)]
+
         num_experiments = 2
 
         ts = time.time()
@@ -226,22 +232,33 @@ class Covid19Predictor():
             # Split data
             model.split_data()
 
-            # Perform training in threading
-            model.train_with_thread(size=num_experiments)
+            # Use different regularizer
+            for reg in regularizers:
+                self.cf['regularizer'] = reg
 
-            # Get the average score and STD
-            thread_results = []
-            while model.process_results.qsize() != 0:
-                thread_results.append(model.process_results.get())
-            self.excel['avg_score'].append(mean(thread_results))
-            self.excel['std_score'].append(stdev(thread_results))
-            self.excel['X Variables'].append(', '.join(x_variables))
-            self.excel['Y Target'].append(self.cf['target'])
-            self.excel['Train States'].append(', '.join(train_states))
-            self.excel['Target State'].append(st)
-            self.excel['Repetition'].append(num_experiments)
-            self.excel['Train Size'].append(model.train_size)
-            self.excel['Test Size'].append(model.test_size)
+                # Use different L1L2 for the regularizer
+                for LL in LL_list:
+                    self.cf['L1L2'] = LL
+
+                    # Perform training in threading
+                    model.train_with_thread(size=num_experiments)
+
+                    # Get the average score and STD
+                    thread_results = []
+                    while model.process_results.qsize() != 0:
+                        thread_results.append(model.process_results.get())
+
+                    self.excel['avg_score'].append(mean(thread_results))
+                    self.excel['std_score'].append(stdev(thread_results))
+                    self.excel['X Variables'].append(', '.join(x_variables))
+                    self.excel['Y Target'].append(self.cf['target'])
+                    self.excel['Train States'].append(', '.join(train_states))
+                    self.excel['Target State'].append(st)
+                    self.excel['Repetition'].append(num_experiments)
+                    self.excel['Train Size'].append(model.train_size)
+                    self.excel['Test Size'].append(model.test_size)
+                    self.excel['LL'].append(str(LL.get_config()))
+                    self.excel['Regularizer'].append(reg)
 
             # Show prediction results
             # model.show(y_test, y_predict)

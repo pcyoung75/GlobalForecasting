@@ -150,7 +150,15 @@ class TimeSeriesML():
         # fit the LSTM network
         ts = time.time()
         model = Sequential()
-        model.add(LSTM(self.cf['neurons'], input_shape=(x_train.shape[1], x_train.shape[2]), stateful=False))
+        if self.cf['regularizer'] is None:
+            model.add(LSTM(self.cf['neurons'], input_shape=(x_train.shape[1], x_train.shape[2]), stateful=False))
+        elif self.cf['regularizer'] == 'bias':
+            model.add(LSTM(self.cf['neurons'], input_shape=(x_train.shape[1], x_train.shape[2]), stateful=False, bias_regularizer=self.cf['L1L2']))
+        elif self.cf['regularizer'] == 'kernel':
+            model.add(LSTM(self.cf['neurons'], input_shape=(x_train.shape[1], x_train.shape[2]), stateful=False, kernel_regularizer=self.cf['L1L2']))
+        elif self.cf['regularizer'] == 'activity':
+            model.add(LSTM(self.cf['neurons'], input_shape=(x_train.shape[1], x_train.shape[2]), stateful=False, activity_regularizer=self.cf['L1L2']))
+
         model.add(Dense(1))
         model.compile(loss=self.cf['loss'], optimizer=self.cf['optimizer'])
         model.fit(x_train, y_train, nb_epoch=self.cf['epochs'], batch_size=self.cf['batch_size'], verbose=2)
