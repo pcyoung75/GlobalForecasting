@@ -96,7 +96,7 @@ class Covid19Predictor():
         # self.cf['epochs'] = 100
         # self.cf['epochs'] = 20
         # self.cf['epochs'] = 40
-        self.cf['epochs'] = 2
+        self.cf['epochs'] = 20
         self.cf['batch_size'] = 1
         # self.cf['batch_size'] = 32
         self.cf['save_dir'] = 'saved_models'
@@ -196,21 +196,23 @@ class Covid19Predictor():
         # ======================================================================= #
         #       perform ML several times
         # ======================================================================= #
-        states = ["Alabama", "Alaska", "Arizona"]
-        # states = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware",
-        #           "District of Columbia", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky",
-        #           "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana",
-        #           "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma",
-        #           "Oregon", "Pennsylvania", "Puerto Rico", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah",
-        #           "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"]
+        # states = ["Alabama", "Alaska", "Arizona"]
+        states = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware",
+                  "District of Columbia", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky",
+                  "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana",
+                  "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma",
+                  "Oregon", "Pennsylvania", "Puerto Rico", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah",
+                  "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"]
 
-        variables = ['lag_1_ratio_cc', 'SeniorPopulation', 'FoodStamp', 'NoHealthIns', 'PovertyLevel',
-                     'MeanTravelTime', 'SeniorMalePopulation', 'PublicTransportationP', 'Household', 'Income']
+        variables = ['lag_1_ratio_cc']
+        # variables = ['lag_1_ratio_cc', 'SeniorPopulation', 'FoodStamp', 'NoHealthIns', 'PovertyLevel',
+        #              'MeanTravelTime', 'SeniorMalePopulation', 'PublicTransportationP', 'Household', 'Income']
 
-        regularizers = ['bias', 'activity', 'kernel']
-        LL_list = [L1L2(l1=0.0, l2=0.0), L1L2(l1=0.01, l2=0.0), L1L2(l1=0.0, l2=0.01), L1L2(l1=0.01, l2=0.01)]
+        # regularizers = ['bias', 'activity', 'kernel']
+        regularizers = ['kernel']
+        LL_list = [L1L2(l1=0.06, l2=0.0)]
 
-        num_experiments = 2
+        num_experiments = 10
 
         ts = time.time()
 
@@ -224,7 +226,7 @@ class Covid19Predictor():
             test_state.append(st)
 
             # Select x variables
-            x_variables = ['lag_1_ratio_cc']
+            x_variables = variables
 
             # Set experiment settings
             self.set_experiment_settings(train_states, test_state, x_variables)

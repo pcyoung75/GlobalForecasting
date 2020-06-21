@@ -15,6 +15,8 @@ import warnings
 import time
 import threading
 from multiprocessing import Process, Queue
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 class TimeSeriesML():
 
