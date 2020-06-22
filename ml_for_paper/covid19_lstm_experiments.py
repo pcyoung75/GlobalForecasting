@@ -44,6 +44,7 @@ class Covid19Predictor():
         self.cf['sort'] = None
         # self.cf['look_back'] = 1
         self.cf['look_back'] = 20
+        self.cf['show result'] = False
 
         # ===============================================
         self.lags = 4
@@ -196,27 +197,29 @@ class Covid19Predictor():
         # ======================================================================= #
         #       perform ML several times
         # ======================================================================= #
-        # states = ["Alabama", "Alaska", "Arizona"]
-        states = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware",
-                  "District of Columbia", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky",
-                  "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana",
-                  "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma",
-                  "Oregon", "Pennsylvania", "Puerto Rico", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah",
-                  "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"]
+        states = ["Montana", "Alaska", "Hawaii", "Idaho", "Louisiana", "Vermont"]
+        # states = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware",
+        #           "District of Columbia", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky",
+        #           "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana",
+        #           "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma",
+        #           "Oregon", "Pennsylvania", "Puerto Rico", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah",
+        #           "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"]
 
         variables = ['lag_1_ratio_cc']
         # variables = ['lag_1_ratio_cc', 'SeniorPopulation', 'FoodStamp', 'NoHealthIns', 'PovertyLevel',
         #              'MeanTravelTime', 'SeniorMalePopulation', 'PublicTransportationP', 'Household', 'Income']
 
         # regularizers = ['bias', 'activity', 'kernel']
-        regularizers = ['kernel']
+        # regularizers = ['kernel']
+        regularizers = ['None']
         LL_list = [L1L2(l1=0.06, l2=0.0)]
 
-        num_experiments = 10
+        # num_experiments = 10
+        num_experiments = 1
+        self.cf['show result'] = True
 
         ts = time.time()
 
-        # for ex in range(num_experiments + 1):
         for st in states:
             # Make the experiment settings
             # Select training states and a target state
@@ -261,9 +264,6 @@ class Covid19Predictor():
                     self.excel['Test Size'].append(model.test_size)
                     self.excel['LL'].append(str(LL.get_config()))
                     self.excel['Regularizer'].append(reg)
-
-            # Show prediction results
-            # model.show(y_test, y_predict)
 
         winsound.Beep(1000, 440)
         self.save_excel_file()

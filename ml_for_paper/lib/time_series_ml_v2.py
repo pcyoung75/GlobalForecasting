@@ -152,7 +152,7 @@ class TimeSeriesML():
         # fit the LSTM network
         ts = time.time()
         model = Sequential()
-        if self.cf['regularizer'] is None:
+        if self.cf['regularizer'] == 'None':
             model.add(LSTM(self.cf['neurons'], input_shape=(x_train.shape[1], x_train.shape[2]), stateful=False))
         elif self.cf['regularizer'] == 'bias':
             model.add(LSTM(self.cf['neurons'], input_shape=(x_train.shape[1], x_train.shape[2]), stateful=False, bias_regularizer=self.cf['L1L2']))
@@ -183,6 +183,10 @@ class TimeSeriesML():
         process_results.put(test_score)
         time.sleep(0.1)
         print(f'LSTM was learned!: {(time.time() - ts)}')
+
+        # Show prediction results
+        if self.cf['show result'] is True:
+            self.show(y_test, y_predict)
 
     def train(self, x_train=None, y_train=None):
         if x_train is not None:
