@@ -37,7 +37,7 @@ class Covid19Predictor():
         self.cf = {}
         # self.cf['filename'] = os.path.join('../ml_inputs', 'covid19_montana.csv')
         # self.cf['filename'] = os.path.join('../ml_inputs', 'covid19.csv')
-        self.cf['filename'] = os.path.join('../ml_inputs', 'TrainMaster_final.csv')
+        self.cf['filename'] = os.path.join('../ml_inputs', 'TrainMaster_final_v3.csv')
         # self.cf['filename'] = os.path.join('../ml_inputs', 'covid19_three.csv')
         # self.cf['learnedfile'] = os.path.join('saved_models', 'covid19_three.hdf5')
         self.cf['date_data'] = ['Date']
@@ -205,18 +205,78 @@ class Covid19Predictor():
                   "Oregon", "Pennsylvania", "Puerto Rico", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah",
                   "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"]
 
-        variables = ['lag_1_ratio_cc']
-        # variables = ['lag_1_ratio_cc', 'SeniorPopulation', 'FoodStamp', 'NoHealthIns', 'PovertyLevel',
+        # single factor
+        # variables = ['lag_1_ratio_cc']
+
+        # multiple factors
+        # variables = ['lag_1_ratio_cc', 'population', 'SeniorPopulation', 'FoodStamp', 'NoHealthIns', 'PovertyLevel',
         #              'MeanTravelTime', 'SeniorMalePopulation', 'PublicTransportationP', 'Household', 'Income']
+        # Nonclustered
+        variables = ['lag_1_ratio_cc', 'population', 'SeniorPopulation', 'FoodStamp', 'NoHealthIns',
+                     'MeanTravelTime', 'PublicTransportaionE', 'PublicTransportationP', 'Income']
+
+
+        # PublicTransportaionE - Public Transporation Estimate
+        # PublicTransportationP - Public Transporation Percent Estimate
+        # MeanTravelTime - Mean Travel Time
+        # Household = Median Household Income
+        # Income = Mean Household Income
+        # FoodStamp  - Households with Food Stamp Benefits
+        # NoHealthIns - Population with Health Insurance
+        # PovertyLevel
+
+
+        #==============================================================================#
+        # Before Lockdown
+        # Population
+        # Senior Population
+        # Public Transportation Estimate
+        # Public Transportation Percent Estimate
+        # Mean Travel Time
+        # Households with Food Stamp Benefits
+        # Population with Health Insurance
+        #
+        # After Lockdown
+        # Population
+        # Senior Population
+        # Public Transportation Estimate
+        # Public Transportation Percent Estimate
+        # Mean Travel Time
+        # Mean Household Income
+        # Households with Food Stamp Benefits
+        # Population with Health Insurance
+        #
+        # Nonclustered
+        # Population
+        # Senior Population
+        # Public Transportation Estimate
+        # Public Transportation Percent Estimate
+        # Mean Travel Time
+        # Mean Household Income
+        # Households with Food Stamp Benefits
+        # Population with Health Insurance
+        # ==============================================================================#
+
+        # Group 1
+        # "Alaska", "Hawaii", "Idaho", "Louisiana", "Montana", "New York", "Vermont", "Washington"
+
+        # Group 2
+        # "Connecticut", "Florida", "Maine", "Michigan", "Missouri", "Nevada", "New Jersey","Oklahoma", "Oregon", "Pennsylvania", "South Carolina", "West Virginia", "Wyoming"
+
+        # Group 3
+        # "Alabama", "Arizona", "Arkansas", "California", "Colorado", "District of Columbia", "Georgia", "Indiana", "Kentucky", "Massachusetts", "Mississippi", "New Hampshire",  "North Carolina", "North Dakota", "Ohio", "Puerto Rico", "Tennessee", "Texas", "Utah", "Wisconsin"
+
+        # Group 4
+        # "Delaware", "Illinois", "Iowa", "Kansas", "Maryland", "Minnesota", "Nebraska", "New Mexico", "Rhode Island", "South Dakota", "Virginia"
 
         # regularizers = ['bias', 'activity', 'kernel']
         # regularizers = ['kernel']
         regularizers = ['None']
         LL_list = [L1L2(l1=0.06, l2=0.0)]
 
-        # num_experiments = 10
-        num_experiments = 1
-        self.cf['show result'] = True
+        num_experiments = 10
+        # num_experiments = 1
+        # self.cf['show result'] = True
 
         ts = time.time()
 
