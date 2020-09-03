@@ -1,1 +1,5 @@
 pip install lightgbm
+
+
+pip install --upgrade tensorflow
+pip install --upgrade keras

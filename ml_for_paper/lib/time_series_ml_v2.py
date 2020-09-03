@@ -163,7 +163,7 @@ class TimeSeriesML():
 
         model.add(Dense(1))
         model.compile(loss=self.cf['loss'], optimizer=self.cf['optimizer'])
-        model.fit(x_train, y_train, nb_epoch=self.cf['epochs'], batch_size=self.cf['batch_size'], verbose=2)
+        model.fit(x_train, y_train, epochs=self.cf['epochs'], batch_size=self.cf['batch_size'], verbose=2)
 
         # test the LSTM network
         y_predict = model.predict(x_test)
