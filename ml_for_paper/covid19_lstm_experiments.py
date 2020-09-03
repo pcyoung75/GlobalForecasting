@@ -97,11 +97,11 @@ class Covid19Predictor():
         # self.cf['epochs'] = 500 # better
         # self.cf['epochs'] = 100
         # self.cf['epochs'] = 40
-        # self.cf['epochs'] = 20
-        self.cf['epochs'] = 2
+        self.cf['epochs'] = 20
+        # self.cf['epochs'] = 2
 
-        self.cf['batch_size'] = 32
-        # self.cf['batch_size'] = 1
+        # self.cf['batch_size'] = 32
+        self.cf['batch_size'] = 1
 
         self.cf['save_dir'] = 'saved_models'
         self.cf['loss'] = 'mean_squared_error'
@@ -114,8 +114,8 @@ class Covid19Predictor():
         # self.cf['optimizer'] = 'nadam'
         # self.cf['optimizer'] = 'tfoptimizer'
         # self.cf['neurons'] = 200
-        # self.cf['neurons'] = 50
-        self.cf['neurons'] = 4
+        self.cf['neurons'] = 50
+        # self.cf['neurons'] = 4
 
         self.cf['layers'] = []
         # self.cf['metrics'] = 'RMSE'
