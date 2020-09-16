@@ -355,15 +355,25 @@ class Covid19Predictor():
 
 
 if __name__ == '__main__':
-    variables_set = ['population', 'SeniorPopulation', 'FoodStamp', 'NoHealthIns', 'PovertyLevel',
-                     'MeanTravelTime', 'SeniorMalePopulation', 'PublicTransportationP', 'Household', 'Income']
+    # variables_set = ['population', 'SeniorPopulation', 'FoodStamp', 'NoHealthIns', 'PovertyLevel',
+    #                  'MeanTravelTime', 'SeniorMalePopulation', 'PublicTransportationP', 'Household', 'Income']
 
-    state_groups = [["Alaska", "Hawaii", "Idaho", "Louisiana", "Montana", "New York", "Vermont", "Washington"],
-                   ["Connecticut", "Florida", "Maine", "Michigan", "Missouri", "Nevada", "New Jersey","Oklahoma", "Oregon", "Pennsylvania", "South Carolina", "West Virginia", "Wyoming"],
-                   ["Alabama", "Arizona", "Arkansas", "California", "Colorado", "District of Columbia", "Georgia", "Indiana",
-                          "Kentucky", "Massachusetts", "Mississippi", "New Hampshire", "North Carolina", "North Dakota", "Ohio",
-                          "Puerto Rico", "Tennessee", "Texas", "Utah", "Wisconsin"],
-                   ["Delaware", "Illinois", "Iowa", "Kansas", "Maryland", "Minnesota", "Nebraska", "New Mexico", "Rhode Island", "South Dakota", "Virginia"]]
+    variables_set = ['population', 'SeniorPopulation', 'FoodStamp', 'NoHealthIns', 'PovertyLevel',
+                     'MeanTravelTime', 'PublicTransportationP', 'Household', 'Income']
+
+    # state_groups = [["Alaska", "Hawaii", "Idaho", "Louisiana", "Montana", "New York", "Vermont", "Washington"],
+    #                ["Connecticut", "Florida", "Maine", "Michigan", "Missouri", "Nevada", "New Jersey","Oklahoma", "Oregon", "Pennsylvania", "South Carolina", "West Virginia", "Wyoming"],
+    #                ["Alabama", "Arizona", "Arkansas", "California", "Colorado", "District of Columbia", "Georgia", "Indiana",
+    #                       "Kentucky", "Massachusetts", "Mississippi", "New Hampshire", "North Carolina", "North Dakota", "Ohio",
+    #                       "Puerto Rico", "Tennessee", "Texas", "Utah", "Wisconsin"],
+    #                ["Delaware", "Illinois", "Iowa", "Kansas", "Maryland", "Minnesota", "Nebraska", "New Mexico", "Rhode Island", "South Dakota", "Virginia"]]
+
+    state_groups = ["Alaska", "Hawaii",  "Louisiana", "Montana", "New York", "Vermont", "Washington", "Connecticut",
+                    "Maine", "Michigan", "Missouri", "Nevada", "New Jersey","Oklahoma", "Oregon", "Pennsylvania",
+                    "South Carolina", "West Virginia", "Wyoming", "Alabama", "Arizona", "Arkansas", "California",
+                    "District of Columbia", "Georgia", "Kentucky", "Massachusetts", "Mississippi", "New Hampshire",
+                    "North Carolina", "North Dakota", "Ohio", "Puerto Rico", "Tennessee", "Texas", "Delaware", "Iowa",
+                    "Kansas", "Maryland",  "Nebraska", "New Mexico", "Rhode Island", "South Dakota"]
 
     # 1024 combinations
     df_factor_rslt = pd.DataFrame(columns=['factors', 'avg', 'std'])
