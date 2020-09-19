@@ -355,25 +355,30 @@ class Covid19Predictor():
 
 
 if __name__ == '__main__':
+    final_test_states = ['Colorado', 'Illinois', 'Minnesota', 'Virginia', 'Wisconsin', 'Montana', 'Idaho', 'Florida',
+                         'Indiana', 'Utah']
+
     # variables_set = ['population', 'SeniorPopulation', 'FoodStamp', 'NoHealthIns', 'PovertyLevel',
     #                  'MeanTravelTime', 'SeniorMalePopulation', 'PublicTransportationP', 'Household', 'Income']
 
     variables_set = ['population', 'SeniorPopulation', 'FoodStamp', 'NoHealthIns', 'PovertyLevel',
                      'MeanTravelTime', 'PublicTransportationP', 'Household', 'Income']
 
-    # state_groups = [["Alaska", "Hawaii", "Idaho", "Louisiana", "Montana", "New York", "Vermont", "Washington"],
-    #                ["Connecticut", "Florida", "Maine", "Michigan", "Missouri", "Nevada", "New Jersey","Oklahoma", "Oregon", "Pennsylvania", "South Carolina", "West Virginia", "Wyoming"],
-    #                ["Alabama", "Arizona", "Arkansas", "California", "Colorado", "District of Columbia", "Georgia", "Indiana",
-    #                       "Kentucky", "Massachusetts", "Mississippi", "New Hampshire", "North Carolina", "North Dakota", "Ohio",
-    #                       "Puerto Rico", "Tennessee", "Texas", "Utah", "Wisconsin"],
-    #                ["Delaware", "Illinois", "Iowa", "Kansas", "Maryland", "Minnesota", "Nebraska", "New Mexico", "Rhode Island", "South Dakota", "Virginia"]]
+    state_groups = [["Alaska", "Hawaii", "Louisiana", "New York", "Vermont", "Washington"],
+                   ["Alabama", "Arkansas", "California", "Georgia", "Maine", "Michigan", "Missouri", "Nevada",
+                    "New Jersey", "Oklahoma", "Oregon", "Pennsylvania", "South Carolina", "Tennessee",
+                    "West Virginia", "Wyoming"],
+                    ["Arizona", "Connecticut", "Delaware", "District of Columbia", "Iowa", "Kansas", "Kentucky",
+                     "Maryland", "Massachusetts", "Mississippi", "Nebraska", "New Hampshire", "New Mexico",
+                     "North Carolina", "North Dakota", "Ohio",  "Rhode Island", "South Dakota", "Texas"]
+                    ]
 
-    state_groups = ["Alaska", "Hawaii",  "Louisiana", "Montana", "New York", "Vermont", "Washington", "Connecticut",
-                    "Maine", "Michigan", "Missouri", "Nevada", "New Jersey","Oklahoma", "Oregon", "Pennsylvania",
-                    "South Carolina", "West Virginia", "Wyoming", "Alabama", "Arizona", "Arkansas", "California",
-                    "District of Columbia", "Georgia", "Kentucky", "Massachusetts", "Mississippi", "New Hampshire",
-                    "North Carolina", "North Dakota", "Ohio", "Puerto Rico", "Tennessee", "Texas", "Delaware", "Iowa",
-                    "Kansas", "Maryland",  "Nebraska", "New Mexico", "Rhode Island", "South Dakota"]
+    # state_groups = [["Alaska", "Hawaii",  "Louisiana", "Montana", "New York", "Vermont", "Washington", "Connecticut",
+    #                 "Maine", "Michigan", "Missouri", "Nevada", "New Jersey","Oklahoma", "Oregon", "Pennsylvania",
+    #                 "South Carolina", "West Virginia", "Wyoming", "Alabama", "Arizona", "Arkansas", "California",
+    #                 "District of Columbia", "Georgia", "Kentucky", "Massachusetts", "Mississippi", "New Hampshire",
+    #                 "North Carolina", "North Dakota", "Ohio", "Puerto Rico", "Tennessee", "Texas", "Delaware", "Iowa",
+    #                 "Kansas", "Maryland",  "Nebraska", "New Mexico", "Rhode Island", "South Dakota"]]
 
     # 1024 combinations
     df_factor_rslt = pd.DataFrame(columns=['factors', 'avg', 'std'])
@@ -389,7 +394,7 @@ if __name__ == '__main__':
 
             for states in state_groups:
                 states_name = '_'.join(states)
-                abr_states_name = states_name[::2]
+                abr_states_name = states_name[::2][:10]
                 ex_name = f'[{abr_states_name}][{factors_name}]'
                 print(ex_name)
 
@@ -404,6 +409,6 @@ if __name__ == '__main__':
 
             df_factor_rslt.append({'factors': factors_name, 'avg': mean(avgs), 'std': mean(stds)}, ignore_index = True)
 
-    experiment_time = datetime.now().strftime(ex_name + "_%m_%d_%Y-%H_%M_%S")
-    excel_file = f'../ml_outputs/factors_rslt_{factors_name}_{experiment_time}.xlsx'
-    df_factor_rslt.to_excel(excel_file)
+    # experiment_time = datetime.now().strftime(ex_name + "_%m_%d_%Y-%H_%M_%S")
+    # excel_file = f'../ml_outputs/factors_rslt_{factors_name}_{experiment_time}.xlsx'
+    # df_factor_rslt.to_excel(excel_file)
