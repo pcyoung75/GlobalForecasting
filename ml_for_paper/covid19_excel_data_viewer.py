@@ -10,9 +10,13 @@ for (dirpath, dirnames, filenames) in walk(mypath):
     f.extend(filenames)
     break
 
+# AioaCnetct
+# Aak_aaiLus
+# AaaaAkna_a
+
 for filename in filenames:
-    if 'CnetctFoiaMieMcia_isuiNvd_e esy' in filename:
+    if 'AioaCnetct' in filename:
         df_data = pd.read_excel(mypath+'/'+filename)
-        print(f"CnetctFoiaMieMcia_isuiNvd_e esy\t{df_data['X Variables'][0]}\t{df_data['avg_score'][len(df_data)-1]}")
+        print(f"AioaCnetct\t{df_data['X Variables'][0]}\t{df_data['avg_score'][len(df_data)-1]}")
 
 

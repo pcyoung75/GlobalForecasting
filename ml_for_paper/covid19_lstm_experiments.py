@@ -118,8 +118,8 @@ class Covid19Predictor():
         # self.cf['neurons'] = 4
 
         self.cf['layers'] = []
-        # self.cf['metrics'] = 'RMSE'
-        self.cf['metrics'] = 'MAE'
+        self.cf['metrics'] = 'RMSE'
+        # self.cf['metrics'] = 'MAE'
 
     def prepare_data(self, model):
         df = model.excel_data
@@ -403,11 +403,11 @@ if __name__ == '__main__':
                 avgs.append(avg)
                 stds.append(std)
 
-            experiment_time = datetime.now().strftime(ex_name + "_%m_%d_%Y-%H_%M_%S")
-            excel_file = f'../ml_outputs/states_rslt_{factors_name}_{experiment_time}.xlsx'
-            df_states_rslt.to_excel(excel_file)
+            # experiment_time = datetime.now().strftime(ex_name + "_%m_%d_%Y-%H_%M_%S")
+            # excel_file = f'../ml_outputs/states_rslt_{factors_name}_{experiment_time}.xlsx'
+            # df_states_rslt.to_excel(excel_file)
 
-            df_factor_rslt.append({'factors': factors_name, 'avg': mean(avgs), 'std': mean(stds)}, ignore_index = True)
+            # df_factor_rslt.append({'factors': factors_name, 'avg': mean(avgs), 'std': mean(stds)}, ignore_index = True)
 
     # experiment_time = datetime.now().strftime(ex_name + "_%m_%d_%Y-%H_%M_%S")
     # excel_file = f'../ml_outputs/factors_rslt_{factors_name}_{experiment_time}.xlsx'
