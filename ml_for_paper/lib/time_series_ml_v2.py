@@ -94,8 +94,8 @@ class TimeSeriesML():
                 self.first_index[cur_index] = s
 
             # Get the train and test data from the selected data
-            self.df_train = self.dataset.ix[df_train.index].dropna(subset=cols)
-            self.df_test = self.dataset.ix[df_test.index].dropna(subset=cols)
+            self.df_train = self.dataset.loc[df_train.index].dropna(subset=cols)
+            self.df_test = self.dataset.loc[df_test.index].dropna(subset=cols)
 
             self.train_size = len(self.df_train)
             self.test_size = len(self.df_test)
